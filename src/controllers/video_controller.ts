@@ -9,12 +9,42 @@ const VideoController = new Elysia({
 });
 
 VideoController.get("/:name", async ({ params }) => {
-    const video = new ObjectReader(s3);
-    const videoFile = await video.getObjectAsVideo(
-        process.env.AWS_BUCKET as string,
-        params.name
-    );
-    return videoFile;
+    try {
+        const video = new ObjectReader(s3);
+        const data = await video.getObject(
+            process.env.AWS_BUCKET as string,
+            params.name
+        );
+        
+        if (!data.Body) {
+            throw new Error("Video not found");
+        }
+
+        const videoData = await data.Body.transformToByteArray();
+        return new Response(videoData, {
+            headers: {
+                "Content-Type": data.ContentType || "video/mp4",
+                "Content-Length": data.ContentLength?.toString() || "",
+                "Cache-Control": "public, max-age=31536000",
+                "Access-Control-Allow-Origin": "*",
+            },
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return new Response(JSON.stringify({ error: error.message }), {
+                status: 404,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+        }
+        return new Response(JSON.stringify({ error: "Internal server error" }), {
+            status: 500,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+    }
 }, {
     detail: {
         summary: "Get video",
