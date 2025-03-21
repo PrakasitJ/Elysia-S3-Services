@@ -8,7 +8,7 @@ const ImageController = new Elysia({
   tags: ["Image"],
 });
 
-ImageController.get("/:name", async ({params}) => {
+ImageController.get("/:name", async ({ params }) => {
   const getter = new ObjectReader(s3);
   const image = await getter.getObjectAsImageWithHTTPHeaders(
     process.env.AWS_BUCKET as string,
@@ -16,10 +16,10 @@ ImageController.get("/:name", async ({params}) => {
   );
   return image;
 }, {
-    detail: {
-        summary: "Get image",
-        description: "Get image from S3 bucket"
-    }
+  detail: {
+    summary: "Get image",
+    description: "Get image from S3 bucket"
+  }
 });
 
 ImageController.post(
@@ -38,7 +38,9 @@ ImageController.post(
     body: t.Object({
       name: t.String(),
       type: t.Optional(t.String()),
-      file: t.File(),
+      file: t.File({
+        type: "image/*"
+      }),
     }),
     detail: {
       summary: "Upload image",

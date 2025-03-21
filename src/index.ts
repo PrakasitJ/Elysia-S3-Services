@@ -2,6 +2,7 @@ import { Elysia, redirect } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import ImageController from "./controllers/image_controller";
+import VideoController from "./controllers/video_controller";
 
 const app = new Elysia();
 app.use(cors());
@@ -18,6 +19,7 @@ app.use(
   })
 );
 app.use(ImageController);
+app.use(VideoController);
 app.get("/", () => redirect("/docs"));
 app.listen(3000);
 

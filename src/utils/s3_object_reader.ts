@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 class ObjectReader {
-  constructor(private s3: S3Client) {}
+  constructor(private s3: S3Client) { }
 
   async getObject(
     bucket: string,
@@ -46,6 +46,15 @@ class ObjectReader {
         "Access-Control-Allow-Origin": "*",
       },
     });
+  }
+
+  async getObjectAsVideo(bucket: string, key: string): Promise<File> {
+    const data = await this.getObject(bucket, key);
+    const video = await data.Body?.transformToByteArray();
+    if (!video) {
+      throw new Error("Video not found");
+    }
+    return new File([video], key, { type: data.ContentType });
   }
 }
 
