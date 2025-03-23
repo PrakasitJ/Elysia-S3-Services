@@ -4,18 +4,18 @@ import s3 from "../s3";
 import ObjectWriter from "../utils/s3_object_writer";
 
 const VideoController = new Elysia({
-    prefix: "/api/video",
+    prefix: "/api/v1/video",
     tags: ["Video"],
 });
 
-VideoController.get("/:name", async ({ params }) => {
+VideoController.get("/*", async ({ params }) => {
     try {
         const video = new ObjectReader(s3);
         const data = await video.getObject(
             process.env.AWS_BUCKET as string,
-            params.name
+            params["*"]
         );
-        
+
         if (!data.Body) {
             throw new Error("Video not found");
         }
@@ -65,7 +65,11 @@ VideoController.post("/", async ({ body }) => {
     body: t.Object({
         name: t.String(),
         file: t.File({
-            type: "video/*"
+            type: "video/*",
+            error: {
+                type: "invalid_file_type",
+                message: "Invalid video file type"
+            }
         }),
         type: t.Optional(
             t.String()

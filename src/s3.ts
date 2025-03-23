@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, S3ClientConfig } from "@aws-sdk/client-s3";
+import { S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
 
 const config: S3ClientConfig = {
   region: process.env.AWS_REGION as string,
@@ -7,7 +7,7 @@ const config: S3ClientConfig = {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
   },
   endpoint: process.env.AWS_ENDPOINT as string,
-  forcePathStyle: true,
+  forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === "true" ? true : false,
 };
 const s3 = new S3Client(config);
 export default s3;

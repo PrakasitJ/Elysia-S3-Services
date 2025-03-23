@@ -37,6 +37,9 @@ class ObjectReader {
     if (!image) {
       throw new Error("Image not found");
     }
+    if (!data.ContentType?.includes("image")) {
+      throw new Error("Invalid image file");
+    }
     const file = new File([image], key, { type: data.ContentType });
     return new Response(image, {
       headers: {
@@ -54,6 +57,9 @@ class ObjectReader {
     if (!video) {
       throw new Error("Video not found");
     }
+    if (!data.ContentType?.includes("video")) {
+      throw new Error("Invalid video file");
+    } 
     return new File([video], key, { type: data.ContentType });
   }
 }
