@@ -8,6 +8,20 @@ const VideoController = new Elysia({
     tags: ["Video"],
 });
 
+VideoController.get("/", async () => {
+    return new Response(JSON.stringify({ message: "Please provide a key to get video", key: "api/v1/video/:key", example: "api/v1/video/videos/1234567890.mp4" }), {
+        status: 200,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+}, {
+    detail: {
+        summary: "Get video",
+        description: "Get video from S3 bucket\n\nPlease provide a key to get video\n\nExample: api/v1/video/videos/1234567890.mp4",
+    }
+});
+
 VideoController.get("/*", async ({ params }) => {
     try {
         const video = new ObjectReader(s3);
@@ -52,6 +66,44 @@ VideoController.get("/*", async ({ params }) => {
     }
 });
 
+VideoController.get("/list", async () => {
+    const video = new ObjectReader(s3);
+    const videoList = await video.getVideoList(
+        process.env.AWS_BUCKET as string,
+        ""
+    );
+    return new Response(JSON.stringify(videoList), {
+        status: 200,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+}, {
+    detail: {
+        summary: "Get video list",
+        description: "Get video list from S3 bucket\n\nPlease provide a key to get video list\n\nExample: api/v1/video/list/videos"
+    }
+});
+
+VideoController.get("/list/*", async ({ params }) => {
+    const video = new ObjectReader(s3);
+    const videoList = await video.getVideoList(
+        process.env.AWS_BUCKET as string,
+        params["*"]
+    );
+    return new Response(JSON.stringify(videoList), {
+        status: 200,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+}, {
+    detail: {
+        summary: "Get video list",
+        description: "Get video list from S3 bucket\n\nPlease provide a key to get video list\n\nExample: api/v1/video/list/videos"
+    }
+});
+
 VideoController.post("/", async ({ body }) => {
     const video = new ObjectWriter(s3);
     const videoFile = await video.putObject(
@@ -77,7 +129,7 @@ VideoController.post("/", async ({ body }) => {
     }),
     detail: {
         summary: "Upload video",
-        description: "Upload video to S3 bucket"
+        description: "Upload video to S3 bucket\n\n name can be nested folder\n\nExample: videos/1234567890.mp4"
     }
 });
 

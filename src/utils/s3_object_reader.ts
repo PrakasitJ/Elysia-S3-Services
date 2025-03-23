@@ -2,6 +2,7 @@ import {
   GetObjectCommand,
   GetObjectCommandOutput,
   S3Client,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 
 class ObjectReader {
@@ -59,8 +60,28 @@ class ObjectReader {
     }
     if (!data.ContentType?.includes("video")) {
       throw new Error("Invalid video file");
-    } 
+    }
     return new File([video], key, { type: data.ContentType });
+  }
+
+  async getVideoList(bucket: string, key: string): Promise<string[]> {
+    const data = await this.s3.send(new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: key,
+    }));
+    const videoList = data.Contents?.filter((content) => content.Key?.endsWith(".mp4"))
+      .map((content) => content.Key ?? "") ?? [];
+    return videoList;
+  }
+
+  async getImageList(bucket: string, key: string): Promise<string[]> {
+    const data = await this.s3.send(new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: key,
+    }));
+    const imageList = data.Contents?.filter((content) => content.Key?.endsWith(".jpg") || content.Key?.endsWith(".png") || content.Key?.endsWith(".jpeg") || content.Key?.endsWith(".gif") || content.Key?.endsWith(".webp") || content.Key?.endsWith(".svg") || content.Key?.endsWith(".ico") || content.Key?.endsWith(".bmp") || content.Key?.endsWith(".tiff") || content.Key?.endsWith(".ico") || content.Key?.endsWith(".heic") || content.Key?.endsWith(".heif"))
+      .map((content) => content.Key ?? "") ?? [];
+    return imageList;
   }
 }
 

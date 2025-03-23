@@ -13,7 +13,10 @@ app.use(
         title: "PrakasitJ S3 API",
         version: "0.6.3",
       },
-      tags: [{ name: "Image", description: "Image operations" }],
+      tags: [
+        { name: "Image", description: "Image operations" },
+        { name: "Video", description: "Video operations" },
+      ],
     },
     path: "/docs",
   })
